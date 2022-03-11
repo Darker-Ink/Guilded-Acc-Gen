@@ -1,11 +1,14 @@
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker')
+const fs = require('fs');
 const wait = require("util").promisify(setTimeout);
-const {noms} = require('./names.js')
+
+
+const puppeteer = require('puppeteer-extra'),
+    StealthPlugin = require('puppeteer-extra-plugin-stealth'),
+    AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
 puppeteer.use(AdblockerPlugin());
 puppeteer.use(StealthPlugin());
 
+const { noms } = require('./names.js')
 
 const TextElement = "TextInputWithLabel-input-element"
 const confirmButton = "FormConfirmButtonV2-container FormConfirmButtonV2-container-desktop FormConfirmButtonV2-container-wide FormConfirmButtonV2-container-filled FormConfirmButtonV2-container-default FormConfirmButtonV2-container-size-md FormConfirmButtonV2-container-type-gilded ConfirmAndCancel-confirm-button"
@@ -13,9 +16,9 @@ const canButton = "CancelText-container CancelText-container-md ConfirmAndCancel
 const signin = "FormConfirmButtonV2-container FormConfirmButtonV2-container-desktop FormConfirmButtonV2-container-hollow FormConfirmButtonV2-container-default FormConfirmButtonV2-container-size-md FormConfirmButtonV2-container-type-bleached LandingPageV3Header-sign-in"
 const signup = "CancelText-container CancelText-container-md ConfirmAndCancel-cancel-text-md ConfirmAndCancel-cancel-text-normal ConfirmAndCancel-cancel-text";
 
-
+makeAccount()
 function makeAccount() {
-    ;(async () => {
+    (async () => {
         const browser = await puppeteer.launch({
             headless: true,
             defaultViewport: null,
@@ -23,10 +26,14 @@ function makeAccount() {
         });
         console.log("Browser opened.. Opening TempMail..")
         const tempMail = await browser.newPage();
-        await tempMail.goto("https://temp-mail.org/", { waitUntil: 'networkidle2' })
+        await tempMail.goto("https://temp-mail.org/", {
+            waitUntil: 'networkidle2'
+        })
         console.log("TempMail opened.. Going to Guilded..")
         const guilded = await browser.newPage();
-        await guilded.goto("https://guilded.gg/", { waitUntil: 'networkidle2' })
+        await guilded.goto("https://guilded.gg/", {
+            waitUntil: 'networkidle2'
+        })
         await wait(5000)
         console.log("Guilded opened.. Going to sign up..")
         try {
@@ -65,13 +72,13 @@ function makeAccount() {
             console.log(e)
         }
     })()
-    
+
 }
 
 async function getEmail(page) {
     await page.waitForSelector('#mail')
     let email = await page.$eval('#mail', el => el.value)
-    if(email.includes("Loading")) {
+    if (email.includes("Loading")) {
         return getEmail(page)
     }
     return email
@@ -93,9 +100,6 @@ function clickButton(classname, page) {
     }, classname)
 }
 
-const fs = require('fs');   
 function writeToFile(email, password) {
     fs.appendFileSync('accounts.txt', `${email}:${password}\n`)
 }
-
-makeAccount()
