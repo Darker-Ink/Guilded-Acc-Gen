@@ -17,7 +17,7 @@ const signup = "CancelText-container CancelText-container-md ConfirmAndCancel-ca
 function makeAccount() {
     ;(async () => {
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             defaultViewport: null,
             slowMo: 40
         });
